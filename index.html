@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Camera Overlay</title>
+      <style>        #camera-container {             position: relative;             width: 454px;             height: 720px;             margin: 0 auto;             overflow: hidden;         }          #video-preview {             width: 100%;             height: 100%;             object-fit: cover;         }          #overlay-image {             position: absolute;             top: 0;             left: 0;             width: 100%;             height: 100%;             opacity: 0.5; /* Ajuste a opacidade conforme necessário */        }          #capture-button {             display: block;             margin: 20px auto;             padding: 10px 20px;             background-color: #ff0000;             color: #ffffff;             border: none;             border-radius: 5px;             font-size: 16px;             cursor: pointer;         } </style>
+   </head>
+   <body>
+      <div id="camera-container">
+         <img id="overlay-image" src="https://static.wixstatic.com/media/4a5985_9fcdf3a2cd3f4290812f48836466497f~mv2.png" alt="Overlay Image">
+         <video id="video-preview"></video>
+      </div>
+      <button id="capture-button">Tirar Foto</button>     
+	  <script>        
+	  var video = document.getElementById('video-preview');         
+	  var captureButton = document.getElementById('capture-button');         
+	  
+	  // Verifica se o navegador suporta a API de mídia
+	  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) { 
+	  
+	  // Solicita permissão para acessar a câmera
+	  navigator.mediaDevices.getUserMedia({ video: true })                 
+	  .then(function(stream) {                     
+		  video.srcObject = stream;                     
+		  video.play();                 
+	  })                 
+	  .catch(function(error) {                     
+		console.log('Ocorreu um erro ao acessar a câmera: ', error);
+	  });
+	  } else {
+		console.log('O navegador não suporta a API de mídia.');
+	  }          
+	  
+	  // Evento de clique no botão de captura        
+	  captureButton.addEventListener('click', function() {             
+		  var canvas = document.createElement('canvas');             
+		  canvas.width = 454;             
+		  canvas.height = 720;             
+		  var context = canvas.getContext('2d');             
+		  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+		  
+		  // Desenha a imagem de sobreposição na parte superior
+		  var overlayImage = document.getElementById('overlay-image');
+		  context.globalAlpha = 1;
+		  context.drawImage(overlayImage, 0, 0, canvas.width, canvas.height);
+		  
+		  // Converte o canvas em uma URL de dados (data URL)		  
+		  var imageData = canvas.toDataURL('image/jpeg');
+		  
+		  // Cria um elemento de link temporário para o download
+		  var downloadLink = document.createElement('a');
+		  downloadLink.href = imageData;
+		  downloadLink.download = 'foto.jpg';
+		  
+		  // Clica automaticamente no link para iniciar o download
+		  downloadLink.click();         
+	  }); 
+	  </script>
+   </body>
+</html>
